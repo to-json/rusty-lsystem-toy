@@ -1,25 +1,19 @@
-#![feature(globs)]
-#![feature(struct_variant)]
-#![feature(phase)]
-
-#[phase(plugin, link)]
-
 extern crate allegro;
 extern crate allegro_image;
 extern crate allegro_primitives;
 
 use allegro::*;
 use allegro_primitives::*;
-use turtle::Turtle;
 
 mod turtle;
 mod l_system;
+use turtle::Turtle;
 
 allegro_main! {
     let core = Core::init().unwrap();
     let prim = PrimitivesAddon::init(&core).unwrap();
-    let disp = Display::new(&core, 1280, 800).unwrap();
-    disp.set_window_title(&"L System Display".to_c_str());
+    let disp = Display::new(&core, 2000, 800).unwrap();
+    disp.set_window_title("L System Display");
 
     let timer = Timer::new(&core, 1.0 / 30.0).unwrap();
 
@@ -28,14 +22,13 @@ allegro_main! {
     q.register_event_source(timer.get_event_source());
 
     // let white = core.map_rgb_f(1.0, 1.0, 1.0);
-    let black = core.map_rgb_f(0.0, 0.0, 0.0);
+    let black = Color::from_rgb_f(0.0, 0.0, 0.0);
     let system = l_system::create_example_l_system();
     let letters = system.run(16);
-    println!("{}", letters.chars().filter(|x| {*x == 'F'}).count())
     let drawdup = system.draw.clone();
     let draw = drawdup.unwrap();
     let turtle = Turtle { x: 400.0, y: 400.0, angle: 0.0, pen: true };
-    let distance: f32 = 2.0;
+    let distance: f32 = 10.0;
     let mut theta = 0.0f32;
     let mut redraw = true;
     let next_color: f32 = 360.0 / 4097.0;
@@ -64,7 +57,7 @@ allegro_main! {
             };
             core.clear_to_color(black);
             letters.chars().fold(turtle, handle_letter);
-            disp.flip();
+            core.flip_display();
             redraw = false;
         }
 
@@ -72,11 +65,11 @@ allegro_main! {
         {
             DisplayClose{source: src, ..} =>
             {
-                assert!(disp.get_event_source().get_event_source() == src)
-                    println!("Display close event...")
+                assert!(disp.get_event_source().get_event_source() == src);
+                    println!("Display close event...");
                     break 'exit;
             },
-            KeyDown{keycode: k, ..} if k == key::Escape =>
+            KeyDown{keycode: k, ..} if k == KeyCode::Escape =>
             {
                 println!("Pressed Escape!");
                 break 'exit;
@@ -86,16 +79,16 @@ allegro_main! {
                 redraw = true;
                 theta = theta + 0.01;
             },
-            _ => { ; }
+            _ => { }
         }
     }
 }
 
 
-fn  hsv_to_rgb(h: f32, saturation: f32, value: f32) -> [f32, ..3] {
+fn  hsv_to_rgb(h: f32, saturation: f32, value: f32) -> [f32; 3] {
     let mut hue = h % 360.0;
     if hue < 0.0 { hue += 360.0 };
-    let d: int = (hue as int) / 60 as int;
+    let d: i32 = (hue as i32) / 60 as i32;
     let e: f32 = hue / 60.0 - (d as f32);
     let a: f32 = value * (1.0 - saturation);
     let b: f32 = value * (1.0 - e * saturation);
@@ -112,8 +105,8 @@ fn  hsv_to_rgb(h: f32, saturation: f32, value: f32) -> [f32, ..3] {
 }
 
 trait HueColor {
-    fn hsv_color(&self, f32, f32, f32) -> Color;
-    fn hsl_color(&self, f32, f32, f32) -> Color;
+    fn hsv_color(&self, h: f32, s: f32, v: f32) -> Color;
+    fn hsl_color(&self, h: f32, s: f32, v: f32) -> Color;
 }
 
 impl HueColor for Core {
@@ -122,7 +115,7 @@ impl HueColor for Core {
         let r = base.get(0).unwrap();
         let g = base.get(1).unwrap();
         let b = base.get(2).unwrap();
-        self.map_rgb_f(*r,*g,*b)
+        Color::from_rgb_f(*r,*g,*b)
     }
 
     fn hsl_color(&self, h: f32, s: f32, v: f32) -> Color { 
@@ -130,7 +123,7 @@ impl HueColor for Core {
         let r = base.get(0).unwrap();
         let g = base.get(1).unwrap();
         let b = base.get(2).unwrap();
-        self.map_rgb_f(*r,*g,*b)
+        Color::from_rgb_f(*r,*g,*b)
     }
 }
 
@@ -153,13 +146,13 @@ fn hsl_to_rgb_helper(mut x: f32, a: f32, b: f32) -> f32 {
 
 /* Function: al_color_hsl_to_rgb
 */
-fn hsl_to_rgb(mut hue: f32, saturation: f32, lightness: f32) -> [f32, ..3]
+fn hsl_to_rgb(mut hue: f32, saturation: f32, lightness: f32) -> [f32 ; 3]
 {
     hue = hue % 360.0;
     if hue < 0.0
         { hue += 360.0 };
     let h = hue / 360.0;
-    let mut a: f32;
+    let a: f32;
     if lightness < 0.5 { 
         a = lightness + lightness * saturation;
     } else { 

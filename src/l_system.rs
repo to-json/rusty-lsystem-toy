@@ -10,10 +10,10 @@ pub struct LSystem {
 }
 
 impl LSystem {
-    pub fn run(&self, iterations: int) -> String {
+    pub fn run(&self, iterations: i32) -> String {
         let mut base = self.axiom.to_string();
-        for _ in range(0i, iterations) {
-        base = apply_rules_to_str(self, base.as_slice())
+        for _ in 0..iterations {
+        base = apply_rules_to_str(self, &base)
         }
         base
     }
@@ -21,7 +21,7 @@ impl LSystem {
 
 fn rule_match(system: &LSystem, letter: char) -> String {
     let ref rules = system.rules;
-    let result = rules.iter().filter({|x: &&Rule| x.pred == letter}).nth(0);
+    let result = rules.iter().filter(|x: &&Rule| x.pred == letter).nth(0);
     match result {
         Some(rule) => rule.succ.to_string(),
         None => letter.to_string()
@@ -48,8 +48,8 @@ pub fn create_example_l_system() -> LSystem {
 #[test]
 fn test_system_execution() {
     let system = create_example_l_system();
-    assert_eq!(system.run(0), "FX".to_string())
-    assert_eq!(system.run(1), "FX+YF".to_string())
+    assert_eq!(system.run(0), "FX".to_string());
+    assert_eq!(system.run(1), "FX+YF".to_string());
     assert_eq!(system.run(3), "FX+YF+FX-YF+FX+YF-FX-YF".to_string())
 }
 
@@ -77,7 +77,7 @@ fn test_rule_matching() {
 #[test]
 fn test_rule_application() {
     let system = create_example_l_system();
-    assert_eq!(apply_rules_to_str(&system, "FX"), "FX+YF".to_string())
-    assert_eq!(apply_rules_to_str(&system, "FX+YF"), "FX+YF+FX-YF".to_string())
+    assert_eq!(apply_rules_to_str(&system, "FX"), "FX+YF".to_string());
+    assert_eq!(apply_rules_to_str(&system, "FX+YF"), "FX+YF+FX-YF".to_string());
     assert_eq!(apply_rules_to_str(&system, "FX+YF+FX-YF"), "FX+YF+FX-YF+FX+YF-FX-YF".to_string())
 }

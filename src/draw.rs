@@ -1,8 +1,3 @@
-#![feature(globs)]
-#![feature(struct_variant)]
-#![feature(phase)]
-
-#[phase(plugin, link)]
 extern crate allegro;
 extern crate allegro_image;
 extern crate allegro_primitives;

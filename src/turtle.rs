@@ -1,7 +1,4 @@
-#![feature(globs)]
-
-use std::num::*;
-
+#[derive(Copy, Clone)]
 pub struct Turtle {
     pub x: f32,
     pub y: f32,
@@ -18,8 +15,8 @@ impl Turtle {
     fn move_self(&self, distance: f32) -> Turtle {
         let coefficients = self.angle.to_radians().sin_cos();
         Turtle { 
-            x: (coefficients.val1() * distance) + self.x,
-            y: (coefficients.val0() * distance) + self.y,
+            x: (coefficients.1 * distance) + self.x,
+            y: (coefficients.0 * distance) + self.y,
             angle: self.angle,
             pen: self.pen
         }
@@ -42,7 +39,7 @@ impl Turtle {
                 self.x,
                 self.y,
                 self.angle,
-                self.pen)
+                self.pen);
         *self
 
     }
@@ -110,7 +107,7 @@ pub fn example_turtle() -> Turtle {
 fn test_forward() {
     let subject = example_turtle().forward(10.0);
     let expected = Turtle { x: 12.928932, y: 27.071068, angle: 135.0, pen: true };
-    assert_eq!(subject.x, expected.x)
+    assert_eq!(subject.x, expected.x);
     assert_eq!(subject.y, expected.y)
 }
 
@@ -119,7 +116,7 @@ fn test_backward() {
     let t = Turtle { x: 12.928932, y: 27.071068, angle: 135.0, pen: true };
     let subject = t.backward(10.0);
     let expected = example_turtle();
-    assert_eq!(subject.x, expected.x)
+    assert_eq!(subject.x, expected.x);
     assert_eq!(subject.y, expected.y)
 }
 
